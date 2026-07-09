@@ -1,0 +1,6 @@
+{
+  "name": "HVAC Job Pricer",
+  "description": "Analyze equipment costs, labor hours, and market trends to price HVAC jobs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
