@@ -13,7 +13,11 @@ import {
   DollarSign,
   TrendingUp,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Settings,
+  ChevronLeft,
+  Save,
+  Check
 } from 'lucide-react';
 import { PricingAnalysis, JobDetails } from './types';
 import { defaultPriceBook } from './pricebook';
@@ -21,10 +25,16 @@ import { defaultPriceBook } from './pricebook';
 import { CalculatorPopup } from './components/Calculator';
 
 export default function App() {
-  const [jobDetails, setJobDetails] = useState<JobDetails>({
-    serviceNotes: '',
-    marketContext: 'Standard / Normal Demand',
-    priceBook: defaultPriceBook
+  const [view, setView] = useState<'dashboard' | 'settings'>('dashboard');
+  const [savedSettings, setSavedSettings] = useState(false);
+
+  const [jobDetails, setJobDetails] = useState<JobDetails>(() => {
+    const savedPriceBook = localStorage.getItem('customPriceBook');
+    return {
+      serviceNotes: '',
+      marketContext: 'Standard / Normal Demand',
+      priceBook: savedPriceBook || defaultPriceBook
+    };
   });
   
   const [analysis, setAnalysis] = useState<PricingAnalysis | null>(null);
@@ -48,6 +58,19 @@ export default function App() {
       }
     };
     reader.readAsText(file);
+  };
+
+  const handleSaveSettings = () => {
+    localStorage.setItem('customPriceBook', jobDetails.priceBook);
+    setSavedSettings(true);
+    setTimeout(() => setSavedSettings(false), 2000);
+  };
+
+  const handleResetSettings = () => {
+    localStorage.removeItem('customPriceBook');
+    setJobDetails(prev => ({ ...prev, priceBook: defaultPriceBook }));
+    setSavedSettings(true);
+    setTimeout(() => setSavedSettings(false), 2000);
   };
 
   const analyzeNotes = async (e?: React.FormEvent, force: boolean = false) => {
@@ -108,19 +131,90 @@ export default function App() {
               <p className="text-xs text-slate-500">Office Manager Dashboard</p>
             </div>
           </div>
-          <button 
-            onClick={() => setCalcOpen(!calcOpen)}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-lg transition-colors"
-          >
-            <Calculator className="w-4 h-4" />
-            <span className="hidden sm:inline">Calculator</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setCalcOpen(!calcOpen)}
+              className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-lg transition-colors"
+            >
+              <Calculator className="w-4 h-4" />
+              <span className="hidden sm:inline">Calculator</span>
+            </button>
+            <button 
+              onClick={() => setView(view === 'dashboard' ? 'settings' : 'dashboard')}
+              className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-lg transition-colors"
+            >
+              {view === 'dashboard' ? <Settings className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+              <span className="hidden sm:inline">{view === 'dashboard' ? 'Settings' : 'Back'}</span>
+            </button>
+          </div>
         </header>
 
-        <main className="flex-1 p-4 sm:p-8 grid lg:grid-cols-3 gap-8">
-          
-          {/* Left Column: Form */}
-          <div className="lg:col-span-2 space-y-6">
+        <main className="flex-1 p-4 sm:p-8 flex flex-col items-center">
+          {view === 'settings' ? (
+            <div className="w-full max-w-3xl space-y-6">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="bg-slate-100 p-2 rounded-xl text-slate-600">
+                    <Settings className="w-5 h-5" />
+                  </div>
+                  <h2 className="text-2xl font-bold">Account Settings</h2>
+                </div>
+                
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">
+                      Custom Price Book
+                    </label>
+                    <p className="text-sm text-slate-500 mb-4">
+                      Upload or paste your company's price book below. This will be linked to your account and used for all future AI estimates. If left blank or reset, the standard industry averages will be used.
+                    </p>
+                    <div className="flex flex-col gap-4">
+                      <div className="flex items-center gap-3">
+                        <label className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 font-bold text-sm rounded-lg hover:bg-indigo-100 cursor-pointer transition-colors">
+                          <FileText className="w-4 h-4" />
+                          <span>Upload File (CSV, TXT)</span>
+                          <input
+                            type="file"
+                            accept=".txt,.csv,.json"
+                            onChange={handleFileUpload}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                      <textarea
+                        name="priceBook"
+                        value={jobDetails.priceBook}
+                        onChange={handleInputChange}
+                        placeholder="e.g. Technician labor: $150/hr, Helper: $75/hr..."
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg p-4 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all h-64 resize-none font-mono"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="pt-6 border-t border-slate-100 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={handleResetSettings}
+                      className="px-4 py-2 text-slate-500 font-bold text-sm hover:text-slate-700 transition-colors"
+                    >
+                      Reset to Default
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveSettings}
+                      className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-md hover:bg-indigo-700 transition-colors flex items-center gap-2"
+                    >
+                      {savedSettings ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+                      {savedSettings ? 'Saved!' : 'Save Settings'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="w-full max-w-7xl grid lg:grid-cols-3 gap-8">
+              {/* Left Column: Form */}
+              <div className="lg:col-span-2 space-y-6">
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
               <form onSubmit={analyzeNotes} className="space-y-6">
                 
@@ -159,32 +253,7 @@ export default function App() {
                   </select>
                 </div>
               </div>
-
-                {/* Price Book */}
-                <div className="space-y-6 pt-4 border-t border-slate-100">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-tighter mb-2">
-                      Price Book (Optional)
-                    </label>
-                    <p className="text-xs text-slate-500 mb-3">Paste your current rates, or upload a CSV/TXT price book. If left blank, we'll use standard industry averages.</p>
-                    <div className="flex flex-col gap-3">
-                      <input
-                        type="file"
-                        accept=".txt,.csv,.json"
-                        onChange={handleFileUpload}
-                        className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-colors"
-                      />
-                      <textarea
-                        name="priceBook"
-                        value={jobDetails.priceBook}
-                        onChange={handleInputChange}
-                        placeholder="e.g. Technician labor: $150/hr, Helper: $75/hr..."
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all h-20 resize-none font-mono"
-                      />
-                    </div>
-                  </div>
-                </div>
-                
+                  
                 <div className="mt-8 p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300 flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <div className="bg-white p-2 rounded-lg shadow-sm font-mono text-sm text-slate-600 font-bold flex items-center gap-2">
@@ -304,6 +373,8 @@ export default function App() {
             )}
             
           </div>
+            </div>
+          )}
         </main>
       </div>
       <CalculatorPopup isOpen={calcOpen} onClose={() => setCalcOpen(false)} />
