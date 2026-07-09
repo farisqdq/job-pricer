@@ -18,6 +18,8 @@ import {
 import { PricingAnalysis, JobDetails } from './types';
 import { defaultPriceBook } from './pricebook';
 
+import { CalculatorPopup } from './components/Calculator';
+
 export default function App() {
   const [jobDetails, setJobDetails] = useState<JobDetails>({
     serviceNotes: '',
@@ -28,6 +30,7 @@ export default function App() {
   const [analysis, setAnalysis] = useState<PricingAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [calcOpen, setCalcOpen] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -65,12 +68,18 @@ export default function App() {
         })
       });
 
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || 'Failed to analyze notes');
+      const textResponse = await response.text();
+      let data;
+      try {
+        data = JSON.parse(textResponse);
+      } catch (e) {
+        throw new Error(`Server returned an invalid response. If deploying on Vercel, check the deployment logs. Response snippet: ${textResponse.substring(0, 50)}...`);
       }
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to analyze notes');
+      }
+
       setAnalysis(data);
     } catch (err: any) {
       setError(err.message);
@@ -94,6 +103,13 @@ export default function App() {
               <p className="text-xs text-slate-500">Office Manager Dashboard</p>
             </div>
           </div>
+          <button 
+            onClick={() => setCalcOpen(!calcOpen)}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-lg transition-colors"
+          >
+            <Calculator className="w-4 h-4" />
+            <span className="hidden sm:inline">Calculator</span>
+          </button>
         </header>
 
         <main className="flex-1 p-4 sm:p-8 grid lg:grid-cols-3 gap-8">
@@ -275,6 +291,7 @@ export default function App() {
           </div>
         </main>
       </div>
+      <CalculatorPopup isOpen={calcOpen} onClose={() => setCalcOpen(false)} />
     </div>
   );
 }
