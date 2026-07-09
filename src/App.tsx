@@ -50,8 +50,8 @@ export default function App() {
     reader.readAsText(file);
   };
 
-  const analyzeNotes = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const analyzeNotes = async (e?: React.FormEvent, force: boolean = false) => {
+    if (e) e.preventDefault();
     if (!jobDetails.serviceNotes) return;
     setLoading(true);
     setError(null);
@@ -64,7 +64,8 @@ export default function App() {
         body: JSON.stringify({
           notes: jobDetails.serviceNotes,
           marketContext: jobDetails.marketContext,
-          priceBook: jobDetails.priceBook
+          priceBook: jobDetails.priceBook,
+          forceOverride: force
         })
       });
 
@@ -78,6 +79,10 @@ export default function App() {
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to analyze notes');
+      }
+
+      if (data.error) {
+        throw new Error(data.error);
       }
 
       setAnalysis(data);
@@ -205,9 +210,19 @@ export default function App() {
           <div className="lg:col-span-1 space-y-6">
             
             {error && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl flex gap-3 items-start">
-                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-                <p className="text-sm">{error}</p>
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl flex gap-3 items-start justify-between">
+                <div className="flex gap-3 items-start">
+                  <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                  <p className="text-sm">{error}</p>
+                </div>
+                {error.toLowerCase().includes('insufficient details') && (
+                  <button 
+                    onClick={() => analyzeNotes(undefined, true)}
+                    className="shrink-0 bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+                  >
+                    Force Estimate
+                  </button>
+                )}
               </motion.div>
             )}
 

@@ -12,13 +12,20 @@ export default async function handler(req: any, res: any) {
     }
 
     const ai = new GoogleGenAI({ apiKey });
-    const { notes, marketContext, priceBook } = req.body;
+    const { notes, marketContext, priceBook, forceOverride } = req.body;
+
+    const overrideInstruction = forceOverride
+      ? "The user has requested to force an estimate regardless of the quality of the notes. You MUST provide a best-guess estimate matching the JSON schema below, even if the notes are just 'hi' or nonsense. Make up a plausible standard service call if necessary."
+      : `IMPORTANT: If the service notes are completely irrelevant, nonsensical (e.g. "hi", "test"), or lack sufficient detail to even guess at a service call, you MUST return a JSON object with a single "error" key like this:
+{ "error": "Insufficient details in service notes to generate an estimate. Please provide more information about the work performed." }`;
 
     const prompt = `You are an expert HVAC estimator and business manager.
 Analyze the following service call notes and provide a recommended price to charge the customer.
 Use the provided price book to determine base costs for materials, equipment, and labor rates.
 If specific costs or times aren't in the price book, use standard HVAC industry averages.
 Take into account standard HVAC industry margins (typically 40-50% gross margin) and any market context provided.
+
+${overrideInstruction}
 
 Service Notes:
 ${notes}
@@ -28,7 +35,7 @@ Market Context (e.g., season, urgency): ${marketContext || 'Standard'}
 Reference Price Book/Rates:
 ${priceBook || 'Use standard industry averages'}
 
-Provide a detailed breakdown in JSON format matching this schema:
+Otherwise, provide a detailed breakdown in JSON format matching this schema:
 {
   "extractedJobDescription": "string", // A clean, professional summary of the work
   "estimatedEquipmentCost": 0, // Your estimate of the base materials/equipment cost
@@ -50,10 +57,18 @@ Return ONLY valid JSON. Do not include markdown formatting or backticks around t
       },
     });
 
-    const resultText = response.text;
-    if (!resultText) throw new Error("No response from AI");
+    let jsonString = response.text;
+    if (!jsonString) throw new Error("No response from AI");
 
-    res.status(200).json(JSON.parse(resultText));
+    // Clean up potential markdown formatting
+    jsonString = jsonString.trim();
+    if (jsonString.startsWith('```json')) {
+      jsonString = jsonString.slice(7, -3).trim();
+    } else if (jsonString.startsWith('```')) {
+      jsonString = jsonString.slice(3, -3).trim();
+    }
+
+    res.status(200).json(JSON.parse(jsonString));
   } catch (error: any) {
     console.error("Error analyzing notes:", error);
     res.status(500).json({ error: error.message || "Failed to analyze notes" });
