@@ -26,6 +26,7 @@ Use the provided price book to determine base costs for materials, equipment, an
 If specific costs or times aren't in the price book, use standard HVAC industry averages.
 Take into account standard HVAC industry margins (typically 40-50% gross margin) and any market context provided.
 CRITICAL INSTRUCTION: You MUST always include a labor estimate (estimatedLaborHours and laborTotal must be > 0) in your response. Accurately estimate the labor hours based on the specific tasks described in the notes. If the notes explicitly mention labor hours, use them. If they describe a specific repair (e.g. replacing a compressor), use standard HVAC industry times for that repair. If no specific repair is mentioned and notes are brief, assume a minimum 1 hour diagnostic/service fee. Ensure the laborTotal is accurately calculated by multiplying estimatedLaborHours by the labor rate from the price book.
+CRITICAL INSTRUCTION: NEVER mention our internal cost or the markup amount in the breakdown or market analysis. The reasoning should ONLY discuss the final customer-facing prices.
 
 ${overrideInstruction}
 

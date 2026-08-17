@@ -32,7 +32,7 @@ export default function App() {
     const savedPriceBook = localStorage.getItem('customPriceBook');
     return {
       serviceNotes: '',
-      marketContext: 'Standard / Normal Demand',
+      marketContext: 'Standard / Normal Demand (45% Margin)',
       priceBook: savedPriceBook || defaultPriceBook
     };
   });
@@ -246,10 +246,10 @@ export default function App() {
                       onChange={handleInputChange}
                       className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
                     >
-                    <option value="Low Demand / Slow Season">Low Demand / Slow Season (Discounted)</option>
-                    <option value="Standard / Normal Demand">Standard / Normal Demand</option>
-                    <option value="High Demand / Peak Season">High Demand / Peak Season (Premium)</option>
-                    <option value="Emergency / After Hours">Emergency / After Hours (High Premium)</option>
+                    <option value="Low Demand / Slow Season (35% Margin)">Low Demand / Slow Season (35% Profit)</option>
+                    <option value="Standard / Normal Demand (45% Margin)">Standard / Normal Demand (45% Profit)</option>
+                    <option value="High Demand / Peak Season (55% Margin)">High Demand / Peak Season (55% Profit)</option>
+                    <option value="Emergency / After Hours (65% Margin)">Emergency / After Hours (65% Profit)</option>
                   </select>
                 </div>
               </div>
@@ -336,7 +336,6 @@ export default function App() {
                     <div className="text-xs font-bold text-indigo-200 uppercase mb-2 border-b border-indigo-400/30 pb-2">AI Extracted Summary</div>
                     <p className="text-sm font-medium text-white mb-2">{analysis.extractedJobDescription}</p>
                     <div className="flex gap-4 text-indigo-100 text-xs">
-                      <span>Est. Equip: <strong className="text-white">${analysis.estimatedEquipmentCost.toLocaleString()}</strong></span>
                       <span>Est. Labor: <strong className="text-white">{analysis.estimatedLaborHours} hrs</strong></span>
                     </div>
                   </div>
@@ -344,11 +343,11 @@ export default function App() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-white/10 rounded-2xl p-4">
                       <div className="text-[10px] font-bold text-indigo-200 uppercase mb-1">Equipment Total</div>
-                      <div className="text-lg font-bold">${analysis.equipmentMarkup.toLocaleString()}</div>
+                      <div className="text-lg font-bold">${(analysis.estimatedEquipmentCost + analysis.equipmentMarkup).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                     </div>
                     <div className="bg-white/10 rounded-2xl p-4">
                       <div className="text-[10px] font-bold text-indigo-200 uppercase mb-1">Labor Total</div>
-                      <div className="text-lg font-bold">${analysis.laborTotal.toLocaleString()}</div>
+                      <div className="text-lg font-bold">${analysis.laborTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                     </div>
                   </div>
 
