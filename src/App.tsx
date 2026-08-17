@@ -32,7 +32,7 @@ export default function App() {
     const savedPriceBook = localStorage.getItem('customPriceBook');
     return {
       serviceNotes: '',
-      marketContext: 'Standard / Normal Demand (45% Margin)',
+      marketContext: 'Standard / Normal Demand',
       priceBook: savedPriceBook || defaultPriceBook
     };
   });
@@ -246,10 +246,10 @@ export default function App() {
                       onChange={handleInputChange}
                       className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
                     >
-                    <option value="Low Demand / Slow Season (35% Margin)">Low Demand / Slow Season (35% Profit)</option>
-                    <option value="Standard / Normal Demand (45% Margin)">Standard / Normal Demand (45% Profit)</option>
-                    <option value="High Demand / Peak Season (55% Margin)">High Demand / Peak Season (55% Profit)</option>
-                    <option value="Emergency / After Hours (65% Margin)">Emergency / After Hours (65% Profit)</option>
+                    <option value="Low Demand / Slow Season">Low Demand / Slow Season</option>
+                    <option value="Standard / Normal Demand">Standard / Normal Demand</option>
+                    <option value="High Demand / Peak Season">High Demand / Peak Season</option>
+                    <option value="Emergency / After Hours">Emergency / After Hours</option>
                   </select>
                 </div>
               </div>
@@ -328,7 +328,7 @@ export default function App() {
                   <h4 className="text-5xl font-black mt-2">
                     ${analysis.recommendedPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </h4>
-                  <p className="text-indigo-200 text-sm mt-4">Based on {analysis.grossMarginPercentage}% targeted margin + market conditions.</p>
+                  <p className="text-indigo-200 text-sm mt-4">Based on competitive market rates + market conditions.</p>
                 </div>
 
                 <div className="space-y-4 flex-1">

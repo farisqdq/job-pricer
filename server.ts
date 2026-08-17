@@ -23,7 +23,7 @@ async function startServer() {
       const prompt = `You are an expert HVAC estimator and business manager.
 Analyze the following service call notes and provide a recommended price to charge the customer.
 IMPORTANT: The provided price book contains FINAL RETAIL PRICES (already marked up). Use the exact prices from the price book as what to charge the customer. Do NOT apply additional markup to items found in the price book.
-If specific costs or times aren't in the price book, use standard HVAC industry averages, and ONLY THEN apply the market context profit margin to those unknown base costs.
+If specific costs or times aren't in the price book, estimate what a typical, competitive HVAC company would charge the customer, leaning slightly under standard market rates to stay competitive. DO NOT use strict percentage markups.
 CRITICAL INSTRUCTION: You MUST always include a labor estimate (estimatedLaborHours and laborTotal must be > 0) in your response. Accurately estimate the labor hours based on the specific tasks described in the notes. If the notes explicitly mention labor hours, use them. If they describe a specific repair (e.g. replacing a compressor), use standard HVAC industry times for that repair. If no specific repair is mentioned and notes are brief, assume a minimum 1 hour diagnostic/service fee. Ensure the laborTotal is accurately calculated by multiplying estimatedLaborHours by the retail labor rate from the price book.
 CRITICAL INSTRUCTION: NEVER mention our internal cost or the markup amount in the breakdown or market analysis. The reasoning should ONLY discuss the final customer-facing prices.
 
@@ -43,9 +43,9 @@ Otherwise, provide a detailed breakdown in JSON format matching this schema:
   "estimatedEquipmentCost": 0, // The final retail price of the materials/equipment (from the price book)
   "estimatedLaborHours": 0, // Your estimate of the labor hours required
   "recommendedPrice": 0, // total recommended price to charge customer
-  "equipmentMarkup": 0, // 0 if parts are from the price book; otherwise, the markup amount added to unknown base costs
+  "equipmentMarkup": 0, // Always 0 (we do not calculate internal markup)
   "laborTotal": 0, // total charged for labor
-  "grossMarginPercentage": 0, // e.g., 45 (or whatever was passed in the market context)
+  "grossMarginPercentage": 0, // Can be 0 or omitted
   "breakdown": ["string"], // step by step breakdown of costs and reasoning (discuss ONLY retail prices)
   "marketAnalysis": "string" // explanation of how market context affected pricing
 }
