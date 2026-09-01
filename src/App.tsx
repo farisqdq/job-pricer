@@ -32,7 +32,9 @@ export default function App() {
     const savedPriceBook = localStorage.getItem('customPriceBook');
     return {
       serviceNotes: '',
+      customerAddress: '',
       marketContext: 'Standard / Normal Demand',
+      jobType: 'Residential',
       priceBook: savedPriceBook || defaultPriceBook
     };
   });
@@ -88,6 +90,8 @@ export default function App() {
           notes: jobDetails.serviceNotes,
           marketContext: jobDetails.marketContext,
           priceBook: jobDetails.priceBook,
+          customerAddress: jobDetails.customerAddress,
+          jobType: jobDetails.jobType,
           forceOverride: force
         })
       });
@@ -234,25 +238,50 @@ export default function App() {
                       className="w-full bg-slate-50 border border-slate-200 rounded-lg p-4 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all h-40 resize-none"
                     />
                   </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-tighter mb-2">Customer Address (Optional)</label>
+                    <input
+                      type="text"
+                      name="customerAddress"
+                      value={jobDetails.customerAddress}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 123 Main St, Springfield, IL (Used to estimate travel time/trip charge)"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                    />
+                  </div>
                 </div>
 
                 {/* Market Context */}
                 <div className="space-y-6 pt-4 border-t border-slate-100">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-tighter mb-2">Current Demand</label>
-                    <select
-                      name="marketContext"
-                      value={jobDetails.marketContext}
-                      onChange={handleInputChange}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
-                    >
-                    <option value="Low Demand / Slow Season">Low Demand / Slow Season</option>
-                    <option value="Standard / Normal Demand">Standard / Normal Demand</option>
-                    <option value="High Demand / Peak Season">High Demand / Peak Season</option>
-                    <option value="Emergency / After Hours">Emergency / After Hours</option>
-                  </select>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-tighter mb-2">Job Type</label>
+                      <select
+                        name="jobType"
+                        value={jobDetails.jobType}
+                        onChange={handleInputChange}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                      >
+                        <option value="Residential">Residential</option>
+                        <option value="Commercial">Commercial</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-tighter mb-2">Current Demand</label>
+                      <select
+                        name="marketContext"
+                        value={jobDetails.marketContext}
+                        onChange={handleInputChange}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                      >
+                        <option value="Low Demand / Slow Season">Low Demand / Slow Season</option>
+                        <option value="Standard / Normal Demand">Standard / Normal Demand</option>
+                        <option value="High Demand / Peak Season">High Demand / Peak Season</option>
+                        <option value="Emergency / After Hours">Emergency / After Hours</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-              </div>
                   
                 <div className="mt-8 p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300 flex items-center justify-between">
                   <div className="flex items-center space-x-4">

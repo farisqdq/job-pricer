@@ -13,7 +13,7 @@ async function startServer() {
 
   app.post("/api/analyze-notes", async (req, res) => {
     try {
-      const { notes, marketContext, priceBook, forceOverride } = req.body;
+      const { notes, marketContext, priceBook, customerAddress, jobType, forceOverride } = req.body;
 
       const overrideInstruction = forceOverride
         ? "The user has requested to force an estimate regardless of the quality of the notes. You MUST provide a best-guess estimate matching the JSON schema below, even if the notes are just 'hi' or nonsense. Make up a plausible standard service call if necessary."
@@ -26,12 +26,15 @@ IMPORTANT: The provided price book contains FINAL RETAIL PRICES (already marked 
 If specific costs or times aren't in the price book, estimate what a typical, competitive HVAC company would charge the customer, leaning slightly under standard market rates to stay competitive. DO NOT use strict percentage markups.
 CRITICAL INSTRUCTION: You MUST always include a labor estimate (estimatedLaborHours and laborTotal must be > 0) in your response. Accurately estimate the labor hours based on the specific tasks described in the notes. If the notes explicitly mention labor hours, use them. If they describe a specific repair (e.g. replacing a compressor), use standard HVAC industry times for that repair. If no specific repair is mentioned and notes are brief, assume a minimum 1 hour diagnostic/service fee. Ensure the laborTotal is accurately calculated by multiplying estimatedLaborHours by the retail labor rate from the price book.
 CRITICAL INSTRUCTION: NEVER mention our internal cost or the markup amount in the breakdown or market analysis. The reasoning should ONLY discuss the final customer-facing prices.
+CRITICAL INSTRUCTION: If a Customer Address is provided, use Google Maps to look up the location. Evaluate if the location is far or remote. If it is considered a far drive, you MUST add a travel fee or trip charge to the recommended price and note it in the breakdown.
 
 ${overrideInstruction}
 
 Service Notes:
 ${notes}
 
+Job Type: ${jobType || 'Residential'}
+Customer Address: ${customerAddress || 'Not provided'}
 Market Context (e.g., season, urgency): ${marketContext || 'Standard'}
 
 Reference Price Book/Rates:
@@ -49,13 +52,13 @@ Otherwise, provide a detailed breakdown in JSON format matching this schema:
   "breakdown": ["string"], // step by step breakdown of costs and reasoning (discuss ONLY retail prices)
   "marketAnalysis": "string" // explanation of how market context affected pricing
 }
-Return ONLY valid JSON. Do not include markdown formatting or backticks around the json.`;
+Return ONLY a valid JSON object. Do not include extra text, and you can wrap it in a json block (\`\`\`json).`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-3.5-flash",
         contents: prompt,
         config: {
-          responseMimeType: "application/json",
+          tools: [{ googleMaps: {} }],
         },
       });
 

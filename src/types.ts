@@ -14,4 +14,6 @@ export interface JobDetails {
   serviceNotes: string;
   marketContext: string;
   priceBook: string;
+  customerAddress: string;
+  jobType: string;
 }
