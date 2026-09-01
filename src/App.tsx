@@ -44,6 +44,37 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [calcOpen, setCalcOpen] = useState(false);
 
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return sessionStorage.getItem('portalAuth') === 'true';
+  });
+  const [passwordInput, setPasswordInput] = useState('');
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      const res = await fetch('/api/verify-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: passwordInput })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsAuthenticated(true);
+        sessionStorage.setItem('portalAuth', 'true');
+      } else {
+        setAuthError(data.error || 'Invalid password');
+      }
+    } catch (err) {
+      setAuthError('Failed to verify password.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setJobDetails(prev => ({ ...prev, [name]: value }));
@@ -120,6 +151,51 @@ export default function App() {
     }
   };
 
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 border border-slate-100"
+        >
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-indigo-200">
+              <Calculator className="w-8 h-8" />
+            </div>
+          </div>
+          <h1 className="text-2xl font-black text-center mb-2">SERVICE EXPRESS HVAC PRICING PORTAL</h1>
+          <p className="text-slate-500 text-center text-sm mb-8">Please enter the portal password to continue.</p>
+          
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-tighter mb-2">Password</label>
+              <input
+                type="password"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                required
+              />
+            </div>
+            {authError && (
+              <div className="text-red-500 text-sm font-medium flex items-center gap-2">
+                <AlertCircle className="w-4 h-4" /> {authError}
+              </div>
+            )}
+            <button
+              type="submit"
+              disabled={authLoading}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-colors flex justify-center items-center h-12"
+            >
+              {authLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Enter Portal'}
+            </button>
+          </form>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 font-sans text-slate-900 overflow-auto">
       <div className="flex flex-col flex-1">
@@ -127,12 +203,12 @@ export default function App() {
         {/* Header */}
         <header className="flex items-center justify-between px-4 sm:px-8 py-4 bg-white border-b border-slate-200 shrink-0">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">
+            <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-sm">
               <Calculator className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-lg font-bold tracking-tight">HVAC Job Pricer</h1>
-              <p className="text-xs text-slate-500">Office Manager Dashboard</p>
+              <h1 className="text-lg font-black tracking-tight uppercase">SERVICE EXPRESS HVAC PRICING PORTAL</h1>
+              <p className="text-xs text-slate-500 font-medium">Office Manager Dashboard</p>
             </div>
           </div>
           <div className="flex items-center gap-2">

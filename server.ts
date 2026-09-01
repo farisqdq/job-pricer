@@ -11,6 +11,15 @@ async function startServer() {
 
   app.use(express.json({ limit: "50mb" }));
 
+  app.post("/api/verify-password", (req, res) => {
+    const { password } = req.body;
+    if (password === process.env.PORTAL_PASSWORD) {
+      res.json({ success: true });
+    } else {
+      res.status(401).json({ success: false, error: "Invalid password" });
+    }
+  });
+
   app.post("/api/analyze-notes", async (req, res) => {
     try {
       const { notes, marketContext, priceBook, customerAddress, jobType, forceOverride } = req.body;
