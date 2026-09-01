@@ -164,7 +164,7 @@ export default function App() {
               <Calculator className="w-8 h-8" />
             </div>
           </div>
-          <h1 className="text-2xl font-black text-center mb-2">SERVICE EXPRESS HVAC PRICING PORTAL</h1>
+          <h1 className="text-2xl font-black text-center mb-2">HVAC Pricing AI</h1>
           <p className="text-slate-500 text-center text-sm mb-8">Please enter the portal password to continue.</p>
           
           <form onSubmit={handleLogin} className="space-y-4">
@@ -207,7 +207,7 @@ export default function App() {
               <Calculator className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-lg font-black tracking-tight uppercase">SERVICE EXPRESS HVAC PRICING PORTAL</h1>
+              <h1 className="text-lg font-black tracking-tight uppercase">HVAC Pricing AI</h1>
               <p className="text-xs text-slate-500 font-medium">Office Manager Dashboard</p>
             </div>
           </div>
