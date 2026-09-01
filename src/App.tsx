@@ -50,6 +50,8 @@ export default function App() {
   const [passwordInput, setPasswordInput] = useState('');
   const [authError, setAuthError] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
+  
+  const [feeAmount, setFeeAmount] = useState<string>('');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -475,6 +477,39 @@ export default function App() {
                 </div>
               </motion.div>
             )}
+
+            {/* Processing Fee Calculator */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+              <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <DollarSign className="w-4 h-4 text-indigo-600"/> 
+                Processing Fee Calculator (3.5%)
+              </h3>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-tighter mb-2">Base Amount</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-medium">$</span>
+                  <input 
+                    type="number"
+                    value={feeAmount}
+                    onChange={(e) => setFeeAmount(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg py-3 pl-7 pr-3 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+              {feeAmount && !isNaN(Number(feeAmount)) && (
+                <div className="mt-4 pt-4 border-t border-slate-100 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-slate-500 uppercase">3.5% Fee</span>
+                    <span className="text-sm font-bold text-rose-500">${(Number(feeAmount) * 0.035).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-slate-500 uppercase">Total to Charge</span>
+                    <span className="text-lg font-black text-emerald-600">${(Number(feeAmount) * 1.035).toFixed(2)}</span>
+                  </div>
+                </div>
+              )}
+            </div>
             
           </div>
             </div>
