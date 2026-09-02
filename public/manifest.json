@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "HVAC Pricing AI",
+  "version": "1.0.0",
+  "description": "Analyze equipment costs, labor hours, and market trends to price HVAC jobs.",
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": "favicon.svg"
+  },
+  "icons": {
+    "128": "favicon.svg"
+  },
+  "permissions": [
+    "storage"
+  ]
+}

@@ -52,13 +52,16 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(false);
   
   const [feeAmount, setFeeAmount] = useState<string>('');
+  const [feeOpen, setFeeOpen] = useState(false);
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://job-pricer-sigma.vercel.app';
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthLoading(true);
     setAuthError(null);
     try {
-      const res = await fetch('/api/verify-password', {
+      const res = await fetch(`${API_BASE_URL}/api/verify-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: passwordInput })
@@ -116,7 +119,7 @@ export default function App() {
     setAnalysis(null);
 
     try {
-      const response = await fetch('/api/analyze-notes', {
+      const response = await fetch(`${API_BASE_URL}/api/analyze-notes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -214,6 +217,55 @@ export default function App() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <div className="relative">
+              <button 
+                onClick={() => setFeeOpen(!feeOpen)}
+                className={`flex items-center gap-2 px-4 py-2 ${feeOpen ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'} font-bold text-sm rounded-lg transition-colors`}
+              >
+                <DollarSign className="w-4 h-4" />
+                <span className="hidden sm:inline">Fee Calc</span>
+              </button>
+              
+              {feeOpen && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  className="absolute right-0 top-full mt-2 w-72 bg-white rounded-2xl shadow-xl border border-slate-200 p-5 z-50 origin-top-right"
+                >
+                  <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <DollarSign className="w-4 h-4 text-indigo-600"/> 
+                    Processing Fee (3.5%)
+                  </h3>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-tighter mb-2">Base Amount</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-medium">$</span>
+                      <input 
+                        type="number"
+                        value={feeAmount}
+                        onChange={(e) => setFeeAmount(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg py-3 pl-7 pr-3 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                        placeholder="0.00"
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+                  {feeAmount && !isNaN(Number(feeAmount)) && (
+                    <div className="mt-4 pt-4 border-t border-slate-100 space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-bold text-slate-500 uppercase">3.5% Fee</span>
+                        <span className="text-sm font-bold text-rose-500">${(Number(feeAmount) * 0.035).toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-bold text-slate-500 uppercase">Total to Charge</span>
+                        <span className="text-lg font-black text-emerald-600">${(Number(feeAmount) * 1.035).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </div>
+            
             <button 
               onClick={() => setCalcOpen(!calcOpen)}
               className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-lg transition-colors"
@@ -477,40 +529,7 @@ export default function App() {
                 </div>
               </motion.div>
             )}
-
-            {/* Processing Fee Calculator */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-              <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <DollarSign className="w-4 h-4 text-indigo-600"/> 
-                Processing Fee Calculator (3.5%)
-              </h3>
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-tighter mb-2">Base Amount</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-medium">$</span>
-                  <input 
-                    type="number"
-                    value={feeAmount}
-                    onChange={(e) => setFeeAmount(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg py-3 pl-7 pr-3 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
-                    placeholder="0.00"
-                  />
-                </div>
-              </div>
-              {feeAmount && !isNaN(Number(feeAmount)) && (
-                <div className="mt-4 pt-4 border-t border-slate-100 space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs font-bold text-slate-500 uppercase">3.5% Fee</span>
-                    <span className="text-sm font-bold text-rose-500">${(Number(feeAmount) * 0.035).toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs font-bold text-slate-500 uppercase">Total to Charge</span>
-                    <span className="text-lg font-black text-emerald-600">${(Number(feeAmount) * 1.035).toFixed(2)}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-            
+               
           </div>
             </div>
           )}
